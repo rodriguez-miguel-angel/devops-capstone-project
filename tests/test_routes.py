@@ -196,3 +196,12 @@ class TestAccountService(TestCase):
         updated_account = response.get_json()
         # assert that the updated_account["name"] is whatever you changed it to
         self.assertEqual(updated_account["name"], "something known")
+
+    def test_update_account_not_found(self):
+        """It should not Update an Account that is not found"""
+        # send a self.client.put() request to the BASE_URL with an invalid account number (e.g., 0)
+        response = self.client.put(
+            f"{BASE_URL}/0", 
+            content_type="application/json")
+        # assert that the resp.status_code is status.HTTP_404_NOT_FOUND
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
