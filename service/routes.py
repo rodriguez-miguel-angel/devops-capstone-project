@@ -115,14 +115,36 @@ def read_account(id):
         jsonify(message), status.HTTP_200_OK
     ) 
 
-
-
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
 
 # ... place you code here to UPDATE an account ...
-
+@app.route("/accounts/<int:id>", methods=["PUT"])
+def update_accounts(id):
+    """
+    Update an Account
+    This endpoint will update an Account based on the posted data
+    """
+    app.logger.info("Request to update an Account with id: %s", id)
+    # use the Account.find() method to retrieve the account by the account_id
+    retrieved_account = Account.find(id)
+    # abort() with a status.HTTP_404_NOT_FOUND if it cannot be found
+    if not retrieved_account:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Account with id: {id}. Not found.",
+        )
+    # call the deserialize() method on the account passing in request.get_json()
+    retrieved_account.deserialize(request.get_json())
+    # call account.update() to update the account with the new data
+    retrieved_account.update()
+    # return the serialize() version of the account with a return code of status.HTTP_200_OK
+    message = retrieved_account.serialize()
+    # return {account as json + 200}
+    return make_response(
+        jsonify(message), status.HTTP_200_OK
+    )
 
 ######################################################################
 # DELETE AN ACCOUNT
