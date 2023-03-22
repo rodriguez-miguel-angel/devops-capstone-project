@@ -224,3 +224,20 @@ class TestAccountService(TestCase):
             content_type="application/json")
         # assert that the resp.status_code is status.HTTP_404_NOT_FOUND
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_method_not_allowed(self):
+        """It should not allow an illegal method call"""
+        # call self.client.delete() on the BASE_URL
+        response = self.client.delete(
+            f"{BASE_URL}", 
+            content_type="application/json")
+        # assert that the resp.status_code is status.HTTP_405_METHOD_NOT_ALLOWED
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        # call self.client.put() on the BASE_URL
+        response = self.client.put(
+            f"{BASE_URL}", 
+            content_type="application/json")
+        # assert that the resp.status_code is status.HTTP_405_METHOD_NOT_ALLOWED
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
