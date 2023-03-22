@@ -39,3 +39,13 @@ jobs:
 
       - name: Install dependencies
         run: (pip install --upgrade pip wheel pip install -r requirements.txt)
+      
+      - name: Lint with flake8
+        run:  |
+          flake8 service --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 service --count --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Run unit tests with Nose
+        run: nosetests
+        env:
+          DATABASE_URI: "postgresql://postgres:{password}@{service}:{port}/{database}"
