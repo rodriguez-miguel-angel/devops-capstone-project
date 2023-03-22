@@ -61,6 +61,7 @@ def create_accounts():
 # LIST ALL ACCOUNTS
 ######################################################################
 
+
 # ... place you code here to LIST accounts ...
 @app.route("/accounts", methods=["GET"])
 def list_accounts():
@@ -76,7 +77,7 @@ def list_accounts():
     for account in accounts:
         list_of_accounts.append(account.serialize())
 
-    # log the number of accounts being returned in the list 
+    # log the number of accounts being returned in the list
     app.logger.info("The number of accounts returned: %s", len(list_of_accounts))
 
     # return the list with a return code of status.HTTP_200_OK
@@ -88,6 +89,7 @@ def list_accounts():
 ######################################################################
 # READ AN ACCOUNT
 ######################################################################
+
 
 # ... place you code here to READ an account ...
 @app.route("/accounts/<int:id>", methods=["GET"])
@@ -113,11 +115,12 @@ def read_account(id):
     # return {the account as json here + 200}
     return make_response(
         jsonify(message), status.HTTP_200_OK
-    ) 
+    )
 
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
+
 
 # ... place you code here to UPDATE an account ...
 @app.route("/accounts/<int:id>", methods=["PUT"])
@@ -149,6 +152,7 @@ def update_accounts(id):
 ######################################################################
 # DELETE AN ACCOUNT
 ######################################################################
+
 
 # ... place you code here to DELETE an account ...
 @app.route("/accounts/<int:id>", methods=["DELETE"])
