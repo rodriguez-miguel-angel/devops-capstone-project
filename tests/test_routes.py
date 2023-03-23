@@ -242,7 +242,7 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_headers(self):
-        """It should assert the presence of the following headers:
+        """It should contain the following header options:
             'X-Frame-Options': 'SAMEORIGIN'
             'X-XSS-Protection': '1; mode=block'
             'X-Content-Type-Options': 'nosniff'
