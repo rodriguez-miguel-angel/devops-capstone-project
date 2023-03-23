@@ -12,13 +12,14 @@ from tests.factories import AccountFactory
 from service.common import status  # HTTP Status Codes
 from service.models import db, Account, init_db
 from service.routes import app
+from service import talisman
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
 
 BASE_URL = "/accounts"
-
+HTTPS_ENVIRON = {'wsgi.url_scheme': 'https'}
 
 ######################################################################
 #  T E S T   C A S E S
@@ -34,6 +35,7 @@ class TestAccountService(TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
         init_db(app)
+        talisman.force_https = False
 
     @classmethod
     def tearDownClass(cls):
@@ -241,3 +243,48 @@ class TestAccountService(TestCase):
         # assert that the resp.status_code is status.HTTP_405_METHOD_NOT_ALLOWED
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    def test_headers(self):
+        """It should contain the following header options:
+            'X-Frame-Options': 'SAMEORIGIN'
+            'X-XSS-Protection': '1; mode=block'
+            'X-Content-Type-Options': 'nosniff'
+            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\''
+            'Referrer-Policy': 'strict-origin-when-cross-origin'
+        """
+         # HTTPS request.
+        response = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
+
+        headers = {
+            'X-Frame-Options': 'SAMEORIGIN',
+            'X-XSS-Protection': '1; mode=block',
+            'X-Content-Type-Options': 'nosniff',
+            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'',
+            'Referrer-Policy': 'strict-origin-when-cross-origin'
+        }
+
+        data = response.headers
+
+        # See <https://github.com/GoogleCloudPlatform/flask-talisman/blob/master/flask_talisman/talisman_test.py>.
+        # See <https://www.w3schools.com/python/python_dictionaries_loop.asp>.
+        for key, value in headers.items():
+            self.assertEqual(data.get(key), value)
+        
+    def test_cors_headers(self):
+        """It should establish cross-origin resource sharing (CORS) policies        """
+         # HTTPS request.
+        response = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
+
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'X-Frame-Options': 'SAMEORIGIN',
+            'X-XSS-Protection': '1; mode=block',
+            'X-Content-Type-Options': 'nosniff',
+            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'',
+            'Referrer-Policy': 'strict-origin-when-cross-origin'
+        }
+
+        data = response.headers
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check for the CORS header option
+        self.assertEqual(data.get('Access-Control-Allow-Origin'), headers.get('Access-Control-Allow-Origin'))
+        
