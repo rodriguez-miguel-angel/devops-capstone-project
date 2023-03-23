@@ -269,3 +269,22 @@ class TestAccountService(TestCase):
         for key, value in headers.items():
             self.assertEqual(data.get(key), value)
         
+    def test_cors_headers(self):
+        """It should establish cross-origin resource sharing (CORS) policies        """
+         # HTTPS request.
+        response = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
+
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'X-Frame-Options': 'SAMEORIGIN',
+            'X-XSS-Protection': '1; mode=block',
+            'X-Content-Type-Options': 'nosniff',
+            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'',
+            'Referrer-Policy': 'strict-origin-when-cross-origin'
+        }
+
+        data = response.headers
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check for the CORS header option
+        self.assertEqual(data.get('Access-Control-Allow-Origin'), headers.get('Access-Control-Allow-Origin'))
+        
